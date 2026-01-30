@@ -1,6 +1,9 @@
 {
   "name": "@skyface/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Weather logic for Skyface - zero dependencies",
   "license": "MIT",
   "type": "module",
