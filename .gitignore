@@ -30,3 +30,6 @@ coverage/
 
 # Generated avatars (user-specific)
 weather-avatars/
+
+# Test folders
+test-generation/
