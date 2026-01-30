@@ -1,0 +1,112 @@
+---
+/**
+ * Skyface - Dynamic weather avatar component
+ *
+ * @example
+ * <Skyface lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" />
+ */
+
+import { fetchWeather, getWeatherCondition, type WeatherCondition } from '@skyface/core'
+
+interface Props {
+  /** Latitude of the location */
+  lat: number
+  /** Longitude of the location */
+  lon: number
+  /** Path to weather avatar images */
+  imagesPath: string
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  /** Visual variant */
+  variant?: 'circle' | 'square' | 'stamp'
+  /** Locale for labels */
+  locale?: 'en' | 'fr'
+  /** CSS class */
+  class?: string
+}
+
+const {
+  lat,
+  lon,
+  imagesPath,
+  size = 'md',
+  variant = 'circle',
+  locale = 'en',
+  class: className = '',
+} = Astro.props
+
+const sizes = {
+  sm: 40,
+  md: 64,
+  lg: 96,
+  xl: 128,
+}
+
+const sizeValue = sizes[size]
+
+let condition: WeatherCondition = 'sunny'
+let label = 'Weather'
+
+try {
+  const weather = await fetchWeather({ lat, lon })
+  condition = getWeatherCondition(weather)
+
+  const labels: Record<WeatherCondition, { en: string; fr: string }> = {
+    sunny: { en: 'Sunny', fr: 'Ensoleillé' },
+    'clear-night': { en: 'Clear Night', fr: 'Nuit claire' },
+    cloudy: { en: 'Cloudy', fr: 'Nuageux' },
+    'cloudy-night': { en: 'Cloudy Night', fr: 'Nuit nuageuse' },
+    fog: { en: 'Foggy', fr: 'Brumeux' },
+    rain: { en: 'Rainy', fr: 'Pluvieux' },
+    snow: { en: 'Snowy', fr: 'Neigeux' },
+    thunderstorm: { en: 'Thunderstorm', fr: 'Orageux' },
+    wind: { en: 'Windy', fr: 'Venteux' },
+  }
+  label = labels[condition][locale]
+} catch (error) {
+  console.error('Skyface: Failed to fetch weather', error)
+}
+
+const imageSrc = `${imagesPath}/${condition}.png`
+
+const variantClasses = {
+  circle: 'rounded-full',
+  square: 'rounded-lg',
+  stamp: '', // Stamp has custom styling
+}
+---
+
+{variant === 'stamp' ? (
+  <div
+    class:list={['skyface-stamp', className]}
+    style={`--size: ${sizeValue}px`}
+    title={label}
+  >
+    <img src={imageSrc} alt={label} />
+  </div>
+) : (
+  <img
+    src={imageSrc}
+    alt={label}
+    title={label}
+    width={sizeValue}
+    height={sizeValue}
+    class:list={[variantClasses[variant], className]}
+  />
+)}
+
+<style>
+  .skyface-stamp {
+    /* TODO: Add stamp styling from original implementation */
+    width: var(--size);
+    height: var(--size);
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .skyface-stamp img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>
