@@ -37,7 +37,7 @@ export async function generateAvatars(options: GenerateOptions): Promise<Generat
   // Read input image
   const imageData = readFileSync(config.input)
   const base64Image = imageData.toString('base64')
-  const mimeType = config.input.endsWith('.png') ? 'image/png' : 'image/jpeg'
+  const mimeType = getMimeType(config.input)
 
   for (const condition of conditions) {
     const basePrompt = getPrompt(condition, config.conditions)
@@ -101,4 +101,16 @@ export async function generateAvatars(options: GenerateOptions): Promise<Generat
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+function getMimeType(filePath: string): string {
+  const ext = filePath.toLowerCase().split('.').pop()
+  const mimeTypes: Record<string, string> = {
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    webp: 'image/webp',
+    gif: 'image/gif',
+  }
+  return mimeTypes[ext || ''] || 'image/png'
 }

@@ -32,7 +32,12 @@ export function loadConfig(cwd: string = process.cwd()): GeneratorConfig {
   }
 
   const raw = readFileSync(configPath, 'utf-8')
-  const userConfig = JSON.parse(raw) as Partial<GeneratorConfig>
+  let userConfig: Partial<GeneratorConfig>
+  try {
+    userConfig = JSON.parse(raw)
+  } catch {
+    throw new Error(`Invalid JSON in config file: ${configPath}`)
+  }
 
   // Resolve API key from env if placeholder
   let apiKey = userConfig.apiKey
