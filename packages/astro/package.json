@@ -10,7 +10,9 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./Skyface.astro": "./src/Skyface.astro",
+    "./SkyfaceStamp.astro": "./src/SkyfaceStamp.astro"
   },
   "files": [
     "dist",

@@ -21,6 +21,18 @@ importers:
         specifier: ^1.0.0
         version: 1.6.1(@types/node@20.19.30)
 
+  apps/demo:
+    dependencies:
+      '@skyface/astro':
+        specifier: workspace:*
+        version: link:../../packages/astro
+      '@skyface/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      astro:
+        specifier: ^5.17.1
+        version: 5.17.1(@types/node@20.19.30)(rollup@4.57.1)(typescript@5.9.3)
+
   packages/astro:
     dependencies:
       '@skyface/core':

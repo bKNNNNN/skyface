@@ -1,0 +1,270 @@
+---
+import Skyface from '@skyface/astro/Skyface.astro'
+import SkyfaceStamp from '@skyface/astro/SkyfaceStamp.astro'
+import { getAllConditions } from '@skyface/core'
+
+// Demo locations
+const locations = [
+  { name: 'Paris', lat: 48.8566, lon: 2.3522 },
+  { name: 'New York', lat: 40.7128, lon: -74.0060 },
+  { name: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+  { name: 'Sydney', lat: -33.8688, lon: 151.2093 },
+]
+
+const conditions = getAllConditions()
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Skyface - Dynamic Weather Avatars</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Skyface</h1>
+        <p class="tagline">Dynamic weather-based avatars for your website</p>
+      </header>
+
+      <section>
+        <h2>Stamp Design</h2>
+        <p>The signature postage stamp style with perforated edges.</p>
+        <div class="demo-row">
+          {locations.map(loc => (
+            <div class="demo-item">
+              <SkyfaceStamp
+                lat={loc.lat}
+                lon={loc.lon}
+                imagesPath="/weather-avatars"
+                size="lg"
+                variants={1}
+              />
+              <span class="label">{loc.name}</span>
+            </div>
+          ))}
+        </div>
+        <p class="hint">Click to change variant - Shift+click for debug mode</p>
+      </section>
+
+      <section>
+        <h2>Circle Design</h2>
+        <p>Simple circular avatar style.</p>
+        <div class="demo-row">
+          {locations.map(loc => (
+            <div class="demo-item">
+              <Skyface
+                lat={loc.lat}
+                lon={loc.lon}
+                imagesPath="/weather-avatars"
+                size="lg"
+                variant="circle"
+              />
+              <span class="label">{loc.name}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2>All Weather Conditions</h2>
+        <p>Preview all 9 weather states.</p>
+        <div class="conditions-grid">
+          {conditions.map(condition => (
+            <div class="condition-item">
+              <img
+                src={`/weather-avatars/${condition}.png`}
+                alt={condition}
+                width="80"
+                height="80"
+              />
+              <span class="label">{condition}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2>Sizes</h2>
+        <div class="demo-row">
+          <div class="demo-item">
+            <SkyfaceStamp lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" size="sm" variants={1} />
+            <span class="label">sm</span>
+          </div>
+          <div class="demo-item">
+            <SkyfaceStamp lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" size="md" variants={1} />
+            <span class="label">md</span>
+          </div>
+          <div class="demo-item">
+            <SkyfaceStamp lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" size="lg" variants={1} />
+            <span class="label">lg</span>
+          </div>
+          <div class="demo-item">
+            <SkyfaceStamp lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" size="xl" variants={1} />
+            <span class="label">xl</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Get Started</h2>
+        <pre><code># Generate your avatars
+npx @skyface/generator init
+npx @skyface/generator generate
+
+# Add to your site
+npm install @skyface/astro</code></pre>
+        <a href="https://github.com/bKNNNNN/skyface" class="button">View on GitHub</a>
+      </section>
+    </main>
+
+    <footer>
+      <p>Made with Gemini AI - MIT License</p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+
+  .tagline {
+    font-size: 1.25rem;
+    color: #888;
+  }
+
+  section {
+    margin-bottom: 4rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+  }
+
+  section > p {
+    color: #888;
+    margin-bottom: 1.5rem;
+  }
+
+  .hint {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 1rem;
+  }
+
+  .demo-row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .demo-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .label {
+    font-size: 0.875rem;
+    color: #888;
+  }
+
+  .conditions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .condition-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .condition-item img {
+    border-radius: 12px;
+    background: #2a2a3e;
+  }
+
+  .cta {
+    text-align: center;
+    background: rgba(255,255,255,0.05);
+    border-radius: 16px;
+    padding: 2rem;
+  }
+
+  pre {
+    background: #0d1117;
+    border-radius: 8px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    text-align: left;
+    margin: 1.5rem 0;
+  }
+
+  code {
+    font-family: 'SF Mono', Consolas, monospace;
+    font-size: 0.875rem;
+    color: #c9d1d9;
+  }
+
+  .button {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    text-decoration: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-size: 0.875rem;
+  }
+</style>

@@ -1,0 +1,213 @@
+---
+/**
+ * SkyfaceStamp - Postage stamp style weather avatar
+ *
+ * @example
+ * <SkyfaceStamp lat={48.8566} lon={2.3522} imagesPath="/weather-avatars" />
+ */
+
+import { fetchWeather, getWeatherCondition, type WeatherCondition } from '@skyface/core'
+
+interface Props {
+  /** Latitude of the location */
+  lat: number
+  /** Longitude of the location */
+  lon: number
+  /** Path to weather avatar images */
+  imagesPath: string
+  /** Size variant */
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  /** Number of image variants per condition (for click interaction) */
+  variants?: number
+  /** CSS class */
+  class?: string
+}
+
+const {
+  lat,
+  lon,
+  imagesPath,
+  size = 'md',
+  variants = 5,
+  class: className
+} = Astro.props
+
+const sizes = {
+  sm: 48,
+  md: 64,
+  lg: 112,
+  xl: 176
+}
+
+const s = sizes[size]
+const border = s * 0.0625
+const hole = s * 0.042
+const spacing = s * 0.125
+const h = s * 1.18
+
+// Generate stamp perforated path
+function generateStampPath(w: number, h: number, r: number, gap: number): string {
+  let path = ''
+
+  // Top edge (left to right)
+  path += `M 0 0`
+  for (let x = gap; x < w; x += gap) {
+    path += ` L ${x - r} 0 A ${r} ${r} 0 0 0 ${x + r} 0`
+  }
+  path += ` L ${w} 0`
+
+  // Right edge (top to bottom)
+  for (let y = gap; y < h; y += gap) {
+    path += ` L ${w} ${y - r} A ${r} ${r} 0 0 0 ${w} ${y + r}`
+  }
+  path += ` L ${w} ${h}`
+
+  // Bottom edge (right to left)
+  for (let x = w - gap; x > 0; x -= gap) {
+    path += ` L ${x + r} ${h} A ${r} ${r} 0 0 0 ${x - r} ${h}`
+  }
+  path += ` L 0 ${h}`
+
+  // Left edge (bottom to top)
+  for (let y = h - gap; y > 0; y -= gap) {
+    path += ` L 0 ${y + r} A ${r} ${r} 0 0 0 0 ${y - r}`
+  }
+  path += ' Z'
+
+  return path
+}
+
+const stampPath = generateStampPath(s, h, hole, spacing)
+
+// Fetch initial weather (SSR)
+let initialCondition: WeatherCondition = 'sunny'
+try {
+  const weather = await fetchWeather({ lat, lon })
+  initialCondition = getWeatherCondition(weather)
+} catch (error) {
+  console.error('Skyface: Failed to fetch weather', error)
+}
+
+const uniqueId = `skyface-stamp-${Math.random().toString(36).slice(2, 8)}`
+---
+
+<div
+  class:list={["skyface-stamp", className]}
+  style={`width: ${s}px; height: ${h}px;`}
+  data-weather={initialCondition}
+  data-lat={lat}
+  data-lon={lon}
+  data-images-path={imagesPath}
+  data-variants={variants}
+>
+  <svg viewBox={`0 0 ${s} ${h}`} class="skyface-stamp-svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id={uniqueId}>
+        <path d={stampPath} />
+      </clipPath>
+    </defs>
+
+    <!-- Stamp border with perforations -->
+    <path d={stampPath} class="skyface-stamp-border" />
+
+    <!-- Inner dark area -->
+    <rect
+      x={border}
+      y={border}
+      width={s - border * 2}
+      height={h - border * 2}
+      fill="#1a1a1a"
+    />
+
+    <!-- Weather image -->
+    <image
+      href={`${imagesPath}/${initialCondition}.png`}
+      x={border + 2}
+      y={border + 2}
+      width={s - border * 2 - 4}
+      height={h - border * 2 - 4}
+      preserveAspectRatio="xMidYMid slice"
+    />
+  </svg>
+</div>
+
+<style>
+  .skyface-stamp {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .skyface-stamp-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(1px 2px 4px rgba(0,0,0,0.5));
+  }
+
+  .skyface-stamp-border {
+    fill: #888;
+    transition: fill 0.3s ease;
+  }
+
+  .skyface-stamp:hover .skyface-stamp-border {
+    fill: #aaa;
+  }
+</style>
+
+<script>
+  function initSkyfaceStamps() {
+    const allConditions = ['sunny', 'cloudy', 'rain', 'thunderstorm', 'wind', 'fog', 'snow', 'clear-night', 'cloudy-night']
+    let debugMode = false
+    let debugIndex = 0
+
+    document.querySelectorAll('.skyface-stamp').forEach(wrapper => {
+      const image = wrapper.querySelector('image')
+      if (!image) return
+
+      const imagesPath = wrapper.dataset.imagesPath || '/weather-avatars'
+      const maxVariants = parseInt(wrapper.dataset.variants || '5', 10)
+      const variants = Array.from({ length: maxVariants }, (_, i) => i === 0 ? '' : `-${i + 1}`)
+
+      let currentVariant = 0
+
+      wrapper.addEventListener('click', (e) => {
+        // Shift+click to toggle debug mode
+        if ((e as MouseEvent).shiftKey) {
+          debugMode = !debugMode
+          if (debugMode) {
+            console.log('🔧 Skyface debug ON - Click to cycle weather types')
+          } else {
+            console.log('🔧 Skyface debug OFF')
+            // Reset to original weather
+            const weather = wrapper.dataset.weather || 'sunny'
+            image.setAttribute('href', `${imagesPath}/${weather}.png`)
+          }
+          return
+        }
+
+        if (debugMode) {
+          // Cycle through all weather types
+          debugIndex = (debugIndex + 1) % allConditions.length
+          const testWeather = allConditions[debugIndex]
+          wrapper.dataset.weather = testWeather
+          image.setAttribute('href', `${imagesPath}/${testWeather}.png`)
+          console.log(`🌤️ Testing: ${testWeather}`)
+        } else {
+          // Normal mode: random variant
+          let newVariant
+          do {
+            newVariant = Math.floor(Math.random() * variants.length)
+          } while (newVariant === currentVariant && variants.length > 1)
+
+          currentVariant = newVariant
+          const currentWeather = wrapper.dataset.weather || 'sunny'
+          const suffix = variants[currentVariant]
+          image.setAttribute('href', `${imagesPath}/${currentWeather}${suffix}.png`)
+        }
+      })
+    })
+  }
+
+  // Run on load and on Astro page transitions
+  initSkyfaceStamps()
+  document.addEventListener('astro:page-load', initSkyfaceStamps)
+</script>
