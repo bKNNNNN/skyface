@@ -1,3 +1,3 @@
-export { fetchWeather } from './weather'
-export { getWeatherCondition, type WeatherCondition } from './conditions'
-export type { WeatherData, SkyfaceConfig } from './types'
+export { fetchWeather } from './weather.js'
+export { getWeatherCondition, getAllConditions, getConditionLabel, type WeatherCondition } from './conditions.js'
+export type { WeatherData, SkyfaceConfig } from './types.js'

@@ -1,4 +1,4 @@
-import type { WeatherCondition, WeatherData } from './types'
+import type { WeatherCondition, WeatherData } from './types.js'
 
 export type { WeatherCondition }
 

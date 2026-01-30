@@ -1,4 +1,4 @@
-import type { WeatherData, OpenMeteoResponse } from './types'
+import type { WeatherData, OpenMeteoResponse } from './types.js'
 
 const OPEN_METEO_URL = 'https://api.open-meteo.com/v1/forecast'
 

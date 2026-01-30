@@ -5,8 +5,8 @@ import { writeFileSync, existsSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import ora from 'ora'
 import pc from 'picocolors'
-import { loadConfig, getDefaultConfigContent } from './config'
-import { generateAvatars } from './generate'
+import { loadConfig, getDefaultConfigContent } from './config.js'
+import { generateAvatars } from './generate.js'
 
 program
   .name('skyface')
@@ -71,14 +71,31 @@ program
 
       spinner.text = 'Generating avatars...'
 
-      await generateAvatars({
+      const result = await generateAvatars({
         config,
         onProgress: (condition, variant, total) => {
           spinner.text = `Generating ${condition} (${variant}/${config.variants})...`
         },
+        onError: (condition, variant, error) => {
+          spinner.warn(`Failed: ${condition}-${variant}: ${error.message}`)
+          spinner.start()
+        },
       })
 
-      spinner.succeed(`Generated ${config.variants * 9} avatar variants`)
+      if (result.failed === 0) {
+        spinner.succeed(`Generated ${result.generated} avatar variants`)
+      } else {
+        spinner.warn(`Generated ${result.generated}, failed ${result.failed}`)
+        if (result.errors.length > 0) {
+          console.log(pc.yellow('\nErrors:'))
+          for (const err of result.errors.slice(0, 5)) {
+            console.log(`  ${err.condition}-${err.variant}: ${err.error}`)
+          }
+          if (result.errors.length > 5) {
+            console.log(`  ... and ${result.errors.length - 5} more`)
+          }
+        }
+      }
       console.log(`Output: ${config.output}`)
     } catch (error) {
       spinner.fail((error as Error).message)
