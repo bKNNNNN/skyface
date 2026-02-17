@@ -108,3 +108,13 @@ The original implementation exists in `/home/pierrick/Documents/claude-apps/pers
 - `src/components/ui/WeatherAvatar.astro` - Simple SSR component
 - `src/components/ui/StampAvatar.astro` - Interactive stamp design
 - `public/weather-avatars/` - 45 generated images (9 conditions × 5 variants)
+
+---
+
+## Workflow
+
+- **Branch**: `<type>/<issue-number>-<description>` from `main`
+- **Commit**: `<type>: <description>` (English, lowercase, max 72 chars)
+- **PR**: Link with `Closes #XX`, squash merge, delete branch
+- **Board**: Issues tracked in GitHub Project "claude-apps"
+- **Labels**: `/setup-labels` to configure, `type/*` + `size/*` required per issue
